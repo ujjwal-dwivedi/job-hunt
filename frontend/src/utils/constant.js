@@ -1,13 +1,13 @@
 // constant.js
 
-// Base URL for API
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:8000";
+// Base URL for API - MUST be set in environment variables
+const API_BASE_URL = import.meta.env.VITE_USER_API_END_POINT;
 
-// Optional: in production, throw if API_BASE_URL is missing
-if (!API_BASE_URL && !import.meta.env.DEV) {
-  console.error("VITE_API_URL is not set!");
+// Throw error if API_BASE_URL is not set
+if (!API_BASE_URL) {
+  throw new Error("VITE_API_URL environment variable is not set! Please configure it in your deployment settings.");
 }
+
 
 export const USER_API_END_POINT        = `${API_BASE_URL}/api/v1/user`;
 export const JOB_API_END_POINT         = `${API_BASE_URL}/api/v1/job`;
