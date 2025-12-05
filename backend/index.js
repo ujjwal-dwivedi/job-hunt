@@ -17,28 +17,33 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 
-// console.log("frontend url", process.env.FRONTEND_URLS);
+// CORS Configuration
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   process.env.FRONTEND_URLS
-];
+].filter(Boolean);
+
+console.log("Allowed CORS Origins:", allowedOrigins);
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow Postman or server-to-server calls (no origin)
+    // Allow requests with no origin (like mobile apps, Postman, or server-to-server)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      console.log(" CORS blocked for origin:", origin);
+      callback(new Error(`CORS policy: Origin ${origin} is not allowed`));
     }
   },
-  credentials: true,
+  credentials: true, 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400 
 };
-
-app.use(cors(corsOptions));
-
 
 app.use(cors(corsOptions));
 
