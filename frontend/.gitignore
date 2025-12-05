@@ -26,3 +26,7 @@ dist-ssr
 .env
 .env.test
 .env.production
+API_SETUP_GUIDE.md
+CORS_FIX.md
+DEPLOYMENT_VERIFICATION.md
+.env.example

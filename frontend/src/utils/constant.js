@@ -1,14 +1,20 @@
 // constant.js
 
-// Base URL for API - MUST be set in environment variables
 const API_BASE_URL = import.meta.env.VITE_USER_API_END_POINT;
 
-// Throw error if API_BASE_URL is not set
-if (!API_BASE_URL) {
-  throw new Error("VITE_API_URL environment variable is not set! Please configure it in your deployment settings.");
+// If missing in production → fail fast
+if (!API_BASE_URL && !import.meta.env.DEV) {
+  throw new Error(
+    "VITE_USER_API_END_POINT is not set in Vercel environment variables!"
+  );
 }
 
+console.log("✅ API_BASE_URL configured:", API_BASE_URL);
 
+// Export the base URL
+export { API_BASE_URL };
+
+// API endpoints (for direct axios usage if needed)
 export const USER_API_END_POINT        = `${API_BASE_URL}/api/v1/user`;
 export const JOB_API_END_POINT         = `${API_BASE_URL}/api/v1/job`;
 export const APPLICATION_API_END_POINT = `${API_BASE_URL}/api/v1/application`;
