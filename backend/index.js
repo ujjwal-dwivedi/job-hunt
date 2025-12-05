@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 
-console.log("frontend url", process.env.FRONTEND_URLS);
+// console.log("frontend url", process.env.FRONTEND_URLS);
 const allowedOrigins = [
   "http://localhost:5173",
   process.env.FRONTEND_URLS
@@ -45,7 +45,9 @@ app.use(cors(corsOptions));
 const PORT = process.env.PORT || 3000;
 
 
-// api's
+app.get("/", (req, res) => {
+    res.send("API is running...");
+});
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
