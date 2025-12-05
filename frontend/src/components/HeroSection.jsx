@@ -25,7 +25,9 @@ const HeroSection = () => {
                     <input
                         type="text"
                         placeholder='Find your dream jobs'
+                        value={query}
                         onChange={(e) => setQuery(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && searchJobHandler()}
                         className='outline-none border-none w-full'
 
                     />

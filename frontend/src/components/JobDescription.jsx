@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { APPLICATION_API_END_POINT, JOB_API_END_POINT } from '@/utils/constant';
 import { setSingleJob } from '@/redux/jobSlice';
@@ -17,8 +17,16 @@ const JobDescription = () => {
     const params = useParams();
     const jobId = params.id;
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const applyJobHandler = async () => {
+        // Check if user is authenticated
+        if (!user) {
+            toast.error("Please login to apply for jobs");
+            navigate("/login");
+            return;
+        }
+        
         try {
             const res = await axios.get(`${APPLICATION_API_END_POINT}/apply/${jobId}`, {withCredentials:true});
             
@@ -62,10 +70,10 @@ const JobDescription = () => {
                     </div>
                 </div>
                 <Button
-                onClick={isApplied ? null : applyJobHandler}
+                    onClick={isApplied ? null : applyJobHandler}
                     disabled={isApplied}
                     className={`rounded-lg ${isApplied ? 'bg-gray-600 cursor-not-allowed' : 'bg-[#7209b7] hover:bg-[#5f32ad]'}`}>
-                    {isApplied ? 'Already Applied' : 'Apply Now'}
+                    {isApplied ? 'Already Applied' : user ? 'Apply Now' : 'Login to Apply'}
                 </Button>
             </div>
             <h1 className='border-b-2 border-b-gray-300 font-medium py-4'>Job Description</h1>

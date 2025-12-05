@@ -9,7 +9,7 @@ import axios from 'axios'
 import { USER_API_END_POINT } from '@/utils/constant'
 import { toast } from 'sonner'
 import { useDispatch, useSelector } from 'react-redux'
-import { setLoading } from '@/redux/authSlice'
+import { setLoading, setUser } from '@/redux/authSlice'
 import { Loader2 } from 'lucide-react'
 
 const Signup = () => {
@@ -51,7 +51,9 @@ const Signup = () => {
                 withCredentials: true,
             });
             if (res.data.success) {
-                navigate("/login");
+                // Auto-login: set user in Redux and navigate to home
+                dispatch(setUser(res.data.user));
+                navigate("/");
                 toast.success(res.data.message);
             }
         } catch (error) {
@@ -63,6 +65,7 @@ const Signup = () => {
     }
 
     useEffect(()=>{
+        dispatch(setLoading(false));
         if(user){
             navigate("/");
         }
@@ -80,7 +83,7 @@ const Signup = () => {
                             value={input.fullname}
                             name="fullname"
                             onChange={changeEventHandler}
-                            placeholder="patel"
+                            placeholder="ujjwal"
                         />
                     </div>
                     <div className='my-2'>
@@ -90,7 +93,7 @@ const Signup = () => {
                             value={input.email}
                             name="email"
                             onChange={changeEventHandler}
-                            placeholder="patel@gmail.com"
+                            placeholder="hello42@gmail.com"
                         />
                     </div>
                     <div className='my-2'>
@@ -110,7 +113,7 @@ const Signup = () => {
                             value={input.password}
                             name="password"
                             onChange={changeEventHandler}
-                            placeholder="patel@gmail.com"
+                            placeholder="password"
                         />
                     </div>
                     <div className='flex items-center justify-between'>
@@ -118,24 +121,26 @@ const Signup = () => {
                             <div className="flex items-center space-x-2">
                                 <Input
                                     type="radio"
+                                    id="option1"
                                     name="role"
                                     value="student"
                                     checked={input.role === 'student'}
                                     onChange={changeEventHandler}
                                     className="cursor-pointer"
                                 />
-                                <Label htmlFor="r1">Student</Label>
+                                <Label htmlFor="r1" for="option1" className="cursor-pointer">Student</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Input
                                     type="radio"
+                                    id="option2"
                                     name="role"
                                     value="recruiter"
                                     checked={input.role === 'recruiter'}
                                     onChange={changeEventHandler}
                                     className="cursor-pointer"
                                 />
-                                <Label htmlFor="r2">Recruiter</Label>
+                                <Label htmlFor="r2" for="option2" className="cursor-pointer">Recruiter</Label>
                             </div>
                         </RadioGroup>
                         <div className='flex items-center gap-2'>

@@ -15,8 +15,14 @@ export const register = async (req, res) => {
             });
         };
         const file = req.file;
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        // Only convert & upload when a file was actually provided
+        let cloudResponse = null;
+        if (file) {
+            const fileUri = getDataUri(file);
+            if (fileUri) {
+                cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+            }
+        }
 
         const user = await User.findOne({ email });
         if (user) {
@@ -27,19 +33,36 @@ export const register = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        await User.create({
+        // Create profile object only if we have cloud response (otherwise keep empty object)
+        const profileObj = cloudResponse ? { profilePhoto: cloudResponse.secure_url } : {};
+
+        const newUser = await User.create({
             fullname,
             email,
             phoneNumber,
             password: hashedPassword,
             role,
-            profile:{
-                profilePhoto:cloudResponse.secure_url,
-            }
+            profile: profileObj
         });
 
-        return res.status(201).json({
+        // Auto-login: generate token and return user data
+        const tokenData = {
+            userId: newUser._id
+        }
+        const token = await jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: '1d' });
+
+        const userResponse = {
+            _id: newUser._id,
+            fullname: newUser.fullname,
+            email: newUser.email,
+            phoneNumber: newUser.phoneNumber,
+            role: newUser.role,
+            profile: newUser.profile
+        };
+
+        return res.status(201).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
             message: "Account created successfully.",
+            user: userResponse,
             success: true
         });
     } catch (error) {
@@ -116,9 +139,19 @@ export const updateProfile = async (req, res) => {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
         
         const file = req.file;
-        // cloudinary ayega idhar
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+        // Only convert & upload when a file was actually provided
+        let cloudResponse = null;
+        if (file) {
+            const fileUri = getDataUri(file);
+            if (fileUri) {
+                // For PDFs: Upload with raw resource type but use flags to control delivery
+                cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+                    resource_type: "raw",
+                    type: "upload",
+                    access_mode: "public"
+                });
+            }
+        }
 
 
 
@@ -143,9 +176,9 @@ export const updateProfile = async (req, res) => {
         if(skills) user.profile.skills = skillsArray
       
         // resume comes later here...
-        if(cloudResponse){
-            user.profile.resume = cloudResponse.secure_url // save the cloudinary url
-            user.profile.resumeOriginalName = file.originalname // Save the original file name
+        if (cloudResponse) {
+            user.profile.resume = cloudResponse.secure_url; // save the cloudinary url
+            if (file && file.originalname) user.profile.resumeOriginalName = file.originalname; // Save the original file name if available
         }
 
 

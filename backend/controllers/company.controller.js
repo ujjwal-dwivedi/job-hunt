@@ -74,12 +74,19 @@ export const updateCompany = async (req, res) => {
         const { name, description, website, location } = req.body;
  
         const file = req.file;
-        // idhar cloudinary ayega
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-        const logo = cloudResponse.secure_url;
-    
-        const updateData = { name, description, website, location, logo };
+        // Only upload a new logo if a file was provided
+        let logo;
+        if (file) {
+            const fileUri = getDataUri(file);
+            if (fileUri) {
+                const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+                if (cloudResponse) logo = cloudResponse.secure_url;
+            }
+        }
+
+        // Build updateData without overwriting logo when no new file is uploaded
+        const updateData = { name, description, website, location };
+        if (logo) updateData.logo = logo;
 
         const company = await Company.findByIdAndUpdate(req.params.id, updateData, { new: true });
 

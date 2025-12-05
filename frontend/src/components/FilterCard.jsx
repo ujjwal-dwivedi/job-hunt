@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { Label } from './ui/label'
 import { useDispatch } from 'react-redux'
-import { setSearchedQuery } from '@/redux/jobSlice'
+import { setJobsPageFilter } from '@/redux/jobSlice'
+import { Button } from './ui/button'
+import { Checkbox } from './ui/checkbox'
 
 const fitlerData = [
     {
@@ -20,30 +21,72 @@ const fitlerData = [
 ]
 
 const FilterCard = () => {
-    const [selectedValue, setSelectedValue] = useState('');
+    const [selectedFilters, setSelectedFilters] = useState([]);
     const dispatch = useDispatch();
-    const changeHandler = (value) => {
-        setSelectedValue(value);
+    
+    const toggleFilter = (value) => {
+        setSelectedFilters(prev => {
+            if (prev.includes(value)) {
+                // Deselect if already selected
+                return prev.filter(item => item !== value);
+            } else {
+                // Add to selection
+                return [...prev, value];
+            }
+        });
     }
-    useEffect(()=>{
-        dispatch(setSearchedQuery(selectedValue));
-    },[selectedValue]);
+    
+    const applyFilters = () => {
+        // Join all selected filters with | for OR logic
+        const filterQuery = selectedFilters.join(',');
+        dispatch(setJobsPageFilter(filterQuery));
+    }
+    
+    const clearAllFilters = () => {
+        setSelectedFilters([]);
+        dispatch(setJobsPageFilter(""));
+    }
+    
     return (
         <div className='w-full bg-white p-3 rounded-md'>
-            <h1 className='font-bold text-lg'>Filter Jobs</h1>
+            <div className='flex items-center justify-between'>
+                <h1 className='font-bold text-lg'>Filter Jobs</h1>
+                {selectedFilters.length > 0 && (
+                    <Button 
+                        onClick={clearAllFilters} 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-xs text-red-500 hover:text-red-700"
+                    >
+                        Clear All
+                    </Button>
+                )}
+            </div>
             <hr className='mt-3' />
-            <RadioGroup value={selectedValue} onValueChange={changeHandler}>
+            
+            <div className='space-y-4'>
                 {
                     fitlerData.map((data, index) => (
-                        <div>
+                        <div key={index}>
                             <h1 className='font-bold text-lg'>{data.fitlerType}</h1>
                             {
                                 data.array.map((item, idx) => {
-                                    const itemId = `id${index}-${idx}`
+                                    const itemId = `filter-${index}-${idx}`;
+                                    const isChecked = selectedFilters.includes(item);
+                                    
                                     return (
-                                        <div className='flex items-center space-x-2 my-2'>
-                                            <RadioGroupItem value={item} id={itemId} />
-                                            <Label htmlFor={itemId}>{item}</Label>
+                                        <div key={itemId} className='flex items-center space-x-2 my-2'>
+                                            <Checkbox 
+                                                id={itemId}
+                                                checked={isChecked}
+                                                onCheckedChange={() => toggleFilter(item)}
+                                            />
+                                            <Label 
+                                                htmlFor={itemId}
+                                                className="cursor-pointer"
+                                            >
+                                                {item}
+                                            </Label>
                                         </div>
                                     )
                                 })
@@ -51,7 +94,15 @@ const FilterCard = () => {
                         </div>
                     ))
                 }
-            </RadioGroup>
+            </div>
+            
+            <Button 
+                onClick={applyFilters} 
+                className="w-full mt-4 bg-[#6A38C2] hover:bg-[#5b30a6]"
+                disabled={selectedFilters.length === 0}
+            >
+                Apply Filters
+            </Button>
         </div>
     )
 }

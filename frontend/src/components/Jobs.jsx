@@ -8,21 +8,29 @@ import { motion } from 'framer-motion';
 // const jobsArray = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const Jobs = () => {
-    const { allJobs, searchedQuery } = useSelector(store => store.job);
+    const { allJobs, jobsPageFilter } = useSelector(store => store.job);
     const [filterJobs, setFilterJobs] = useState(allJobs);
 
     useEffect(() => {
-        if (searchedQuery) {
+        if (jobsPageFilter) {
+            // Split multiple filters by comma
+            const filters = jobsPageFilter.split(',').map(f => f.trim().toLowerCase());
+            
             const filteredJobs = allJobs.filter((job) => {
-                return job.title.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-                    job.description.toLowerCase().includes(searchedQuery.toLowerCase()) ||
-                    job.location.toLowerCase().includes(searchedQuery.toLowerCase())
-            })
+                // Check if job matches any of the filters
+                return filters.some(filter => {
+                    return job.title.toLowerCase().includes(filter) ||
+                        job.description.toLowerCase().includes(filter) ||
+                        job.location.toLowerCase().includes(filter) ||
+                        job.company?.name.toLowerCase().includes(filter) ||
+                        (job.salary && job.salary.toString().toLowerCase().includes(filter))
+                });
+            });
             setFilterJobs(filteredJobs)
         } else {
             setFilterJobs(allJobs)
         }
-    }, [allJobs, searchedQuery]);
+    }, [allJobs, jobsPageFilter]);
 
     return (
         <div>
