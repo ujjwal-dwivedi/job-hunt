@@ -16,10 +16,24 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+const allowedOriginsEnv = process.env.FRONTEND_URLS || "http://localhost:5173";
+const allowedOrigins = allowedOriginsEnv.split(",").map(s => s.trim()).filter(Boolean);
+
 const corsOptions = {
-    origin:'http://localhost:5173',
-    credentials:true
-}
+  origin: function (origin, callback) {
+    // If no origin (eg: server-to-server request or curl), allow it.
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    console.warn("Blocked CORS request from origin:", origin);
+    return callback(new Error("CORS policy: This origin is not allowed"), false);
+  },
+  credentials: true,
+  // exposeHeaders: ["set-cookie"] // optional, if you need to expose any headers
+};
 
 app.use(cors(corsOptions));
 
