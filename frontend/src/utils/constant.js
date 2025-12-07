@@ -1,17 +1,7 @@
 // constant.js
 
-const API_BASE_URL = import.meta.env.VITE_USER_API_END_POINT;
+const API_BASE_URL = import.meta.env.VITE_USER_API_END_POINT || "http://localhost:8000";
 
-// If missing in production → fail fast
-if (!API_BASE_URL && !import.meta.env.DEV) {
-  throw new Error(
-    "VITE_USER_API_END_POINT is not set in Vercel environment variables!"
-  );
-}
-
-console.log("✅ API_BASE_URL configured:", API_BASE_URL);
-
-// Export the base URL
 export { API_BASE_URL };
 
 // API endpoints (for direct axios usage if needed)
