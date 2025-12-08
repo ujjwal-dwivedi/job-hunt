@@ -18,7 +18,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 
 // CORS Configuration
-const allowedOrigins = [];
+const allowedOrigins = ["http://localhost:5173"];
 
 // Deployed frontend URL from .env
 if (process.env.FRONTEND_URL) {
