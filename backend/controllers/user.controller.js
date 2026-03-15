@@ -60,7 +60,7 @@ export const register = async (req, res) => {
             profile: newUser.profile
         };
 
-        return res.status(201).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpsOnly: true, sameSite: 'strict' }).json({
+        return res.status(201).cookie("token", token, { maxAge: 1 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'none', secure: true }).json({
             message: "Account created successfully.",
             user: userResponse,
             success: true
@@ -115,13 +115,11 @@ export const login = async (req, res) => {
             profile: user.profile
         }
 
-       res
-  .status(200)
-  .cookie('token', token, {
+    return  res.status(200).cookie('token', token, {
     maxAge: 1 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: isProd,                 // false on localhost, true in production
-    sameSite: isProd ? 'none' : 'lax', // 'lax' for local, 'none' for cross-site in prod
+    sameSite: 'none',
+    secure: true
   })
   .json({
     message: `Welcome back ${user.fullname}`,
