@@ -1,6 +1,6 @@
 // constant.js
 
-const API_BASE_URL ="http://localhost:8000";
+const API_BASE_URL ="https://job-hunt-ixpk.onrender.com";
 
 export { API_BASE_URL };
 

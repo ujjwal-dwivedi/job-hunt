@@ -17,7 +17,10 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 
-app.use(cors());
+app.use(cors({
+    origin: 'https://job-hunt-eta-puce.vercel.app', // your frontend URL
+    credentials: true, // allow cookies
+}));
 
 const PORT = process.env.PORT;
 
