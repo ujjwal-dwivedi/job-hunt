@@ -20,6 +20,6 @@ A basic job portal web application that connects recruiters with job seekers.
 - Track application status
 
 ## Technologies Used
-- Frontend: HTML, CSS, JavaScript
-- Backend: Node.js / Express.js
-- Database: MongoDB / MySQL
+- Frontend: React, TailwindCSS, Javascript
+- Backend: Node.js, Express.js, JWT
+- Database: MongoDB
